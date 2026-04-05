@@ -271,7 +271,7 @@ Triggers: push, pull_request to main.
 
 | Step | Description                             | Status      |
 | ---- | --------------------------------------- | ----------- |
-| 0    | Project scaffold and Docker environment | Not Started |
+| 0    | Project scaffold and Docker environment | Complete    |
 | 1    | PostgreSQL schema                       | Not Started |
 | 2    | DB connection layer and RLS             | Not Started |
 | 3    | Auth routes (register, login, logout)   | Not Started |
@@ -292,3 +292,9 @@ Triggers: push, pull_request to main.
 | 18   | GitHub Actions CI                       | Not Started |
 | 19   | Seed script                             | Not Started |
 | 20   | README                                  | Not Started |
+
+## Current Implementation Status
+
+**Step 0:** Complete. Backend scaffold with Express/TypeScript, Docker Compose with PostgreSQL, environment config.
+
+**Next steps:** Step 1 — PostgreSQL schema and migrations.

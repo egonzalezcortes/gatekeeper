@@ -1,0 +1,44 @@
+{
+  "name": "gatekeeper-backend",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext .ts",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "latest",
+    "bcrypt": "latest",
+    "casbin": "latest",
+    "casbin-pg-adapter": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "knex": "latest",
+    "pg": "latest"
+  },
+  "devDependencies": {
+    "@types/cors": "latest",
+    "@types/bcrypt": "latest",
+    "@types/express": "latest",
+    "@types/jest": "latest",
+    "@types/jsonwebtoken": "latest",
+    "@types/node": "latest",
+    "@types/supertest": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "jest": "latest",
+    "nodemon": "latest",
+    "supertest": "latest",
+    "ts-jest": "latest",
+    "ts-node": "latest",
+    "typescript": "latest"
+  }
+}
