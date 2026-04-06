@@ -5,39 +5,39 @@
 
 ---
 
-## Step 1 Status
+## Step 0 Status
 
-Step 1 complete. PostgreSQL schema created (7 tables), migrations set up, RLS policies defined.
+Complete. Backend scaffold, Docker Compose, TypeScript config. Files: backend/package.json, backend/src/index.ts, backend/tsconfig.json, docker-compose.yml, .env.example, docs/APP_FLOW.md, README.md (updated).
 
 ---
 
 ## Files Changed This Session
 
-- backend/migrations/001_create_tenants.sql
-- backend/migrations/002_create_users.sql
-- backend/migrations/003_create_roles.sql
-- backend/migrations/004_create_user_roles.sql
-- backend/migrations/005_create_casbin_rules.sql
-- backend/migrations/006_create_refresh_tokens.sql
-- backend/migrations/007_create_audit_log.sql
-- backend/src/db/client.ts
-- backend/src/db/migrator.ts
-- backend/src/db/rls.sql
+- backend/package.json
+- backend/tsconfig.json
 - backend/src/index.ts
+- backend/Dockerfile
+- backend/.gitkeep
+- frontend/package.json
+- frontend/Dockerfile
+- frontend/.gitkeep
+- docker-compose.yml
+- .env.example
+- docs/APP_FLOW.md
 - docs/SESSION_HANDOFF.md
 - docs/WORK_LOG.md
+- README.md
 
 ---
 
 ## Verification Notes
 
+- `docker compose config` passes and renders valid service configuration.
 - Backend TypeScript build passes with `npm run build`.
-- All migration files `001_` through `007_` exist in `backend/migrations/`.
-- Migrator executes `.sql` files in numeric order and runs each migration in a separate transaction.
-- RLS policies are defined for users, roles, user_roles, refresh_tokens, and audit_log only.
+- Docker daemon access is currently blocked in this environment (`permission denied` on `/var/run/docker.sock`), so live container runtime checks are pending on a host with Docker socket access.
 
 ---
 
 ## Next Task
 
-Step 2 — Database connection layer and RLS enforcement.
+Step 1 — PostgreSQL schema.
