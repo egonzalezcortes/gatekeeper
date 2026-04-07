@@ -20,3 +20,8 @@
 - Never proxy S3 uploads through the backend. The frontend uploads directly to S3 using the pre-signed URL. The backend only generates the URL.
 - Never issue a new refresh token without revoking the old one in the same transaction.
 - Never proceed past the Step 0 verification signal before starting Step 1. Each step's verification must pass before the next step begins.
+- Never run git commands. Developer reviews code, then runs git add/commit/push manually.
+- Never use CREATE POLICY IF NOT EXISTS in rls.sql — always DROP POLICY IF EXISTS then CREATE.
+  rls.sql is applied on every startup and must reflect the current file exactly.
+- Never edit an existing migration file — migrations are immutable once applied.
+  Bug fixes go in a new migration file.

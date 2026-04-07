@@ -1,7 +1,7 @@
 # APP_FLOW.md — Gatekeeper
 
 **Last updated:** April 2026
-**Status:** Pre-scaffold (Step 0 not yet run — update after Step 0 completes)
+**Status:** Step 1 complete — Step 2 next
 
 ---
 
@@ -43,8 +43,8 @@ backend/src/
 ├── index.ts                 — App entry point
 ├── db/
 │   ├── client.ts            — pg Pool, withTenant() transaction helper, RLS context setter
-│   └── rls.sql              — RLS policy definitions (applied once at DB setup)
-├── migrations/              — Numbered SQL migration files (001_, 002_, etc.)
+│   └── rls.sql              — RLS policy definitions (applied on every startup — see Idempotency Patterns)
+├── migrations/              — node-pg-migrate files, timestamp-prefixed (1_create_tenants.js, etc.)
 ├── middleware/
 │   ├── authenticate.ts      — JWT verification, resolves userId/tenantId/role from DB
 │   ├── authorize.ts         — Casbin enforcer.enforce() factory middleware
@@ -119,6 +119,14 @@ tenants
   └── audit_log (tenant_id FK)
 casbin_rules (global — no tenant_id)
 ```
+
+### Idempotency Patterns
+
+Two different patterns are used depending on whether a file is run-once or run-always:
+
+**Migrations** (`backend/migrations/`) — immutable, run-once. `node-pg-migrate` tracks applied migrations in `pgmigrations` and skips them on subsequent runs. Migration files use `IF NOT EXISTS` guards as a safety net but are never edited after they run. Bug fixes go in a new migration file.
+
+**rls.sql** — mutable, applied on every startup. Uses `DROP POLICY IF EXISTS` before each `CREATE POLICY` so the file is always the source of truth. If policy logic changes, the fix takes effect on next restart without manual intervention. Never use `CREATE POLICY IF NOT EXISTS` in this file — it would silently keep a stale policy in place after an edit.
 
 ---
 
@@ -231,7 +239,7 @@ viewer:  Dashboard
 
 ```
 postgres   — PostgreSQL 16, named volume, health check
-backend    — depends_on postgres (health check condition), migrations run on startup
+backend    — depends_on postgres (service_healthy condition), migrations run on startup
 frontend   — depends_on backend
 ```
 
@@ -246,12 +254,13 @@ AWS_REGION
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
 PORT
+NODE_ENV
 ```
 
 ### CI (GitHub Actions)
 
 ```
-backend-ci:  lint → type-check → test (against real PostgreSQL)
+backend-ci:  lint → type-check → test (against real PostgreSQL service container)
 frontend-ci: lint → type-check → build
 ```
 
@@ -272,7 +281,7 @@ Triggers: push, pull_request to main.
 | Step | Description                             | Status      |
 | ---- | --------------------------------------- | ----------- |
 | 0    | Project scaffold and Docker environment | Complete    |
-| 1    | PostgreSQL schema                       | Not Started |
+| 1    | PostgreSQL schema and migrations        | Complete    |
 | 2    | DB connection layer and RLS             | Not Started |
 | 3    | Auth routes (register, login, logout)   | Not Started |
 | 4    | Refresh token rotation                  | Not Started |
@@ -295,6 +304,6 @@ Triggers: push, pull_request to main.
 
 ## Current Implementation Status
 
-**Step 0:** Complete. Backend scaffold with Express/TypeScript, Docker Compose with PostgreSQL, environment config.
+**Steps 0–1:** Complete. Monorepo scaffold, Express/TypeScript backend, Docker Compose with PostgreSQL, all 7 tables via node-pg-migrate, indexes, DB role setup.
 
-**Next steps:** Step 1 — PostgreSQL schema and migrations.
+**Next:** Step 2 — DB connection layer and RLS enforcement.
