@@ -1,29 +1,19 @@
 # SESSION_HANDOFF.md — Gatekeeper
 
-**Last updated:** 2026-04-06
+**Last updated:** 2026-04-07
 **Updated by:** GitHub Copilot (GPT-5.3-Codex)
 
 ---
 
-## Step 1 Status
+## Step 2 Status
 
-Step 1 complete. PostgreSQL schema created (7 tables), migrations set up, RLS policies defined.
+In progress. RLS policy file updated for idempotent startup application and corrected `user_roles` tenant isolation predicate.
 
 ---
 
 ## Files Changed This Session
 
-- backend/migrations/001_create_tenants.sql
-- backend/migrations/002_create_users.sql
-- backend/migrations/003_create_roles.sql
-- backend/migrations/004_create_user_roles.sql
-- backend/migrations/005_create_casbin_rules.sql
-- backend/migrations/006_create_refresh_tokens.sql
-- backend/migrations/007_create_audit_log.sql
-- backend/src/db/client.ts
-- backend/src/db/migrator.ts
 - backend/src/db/rls.sql
-- backend/src/index.ts
 - docs/SESSION_HANDOFF.md
 - docs/WORK_LOG.md
 
@@ -31,13 +21,11 @@ Step 1 complete. PostgreSQL schema created (7 tables), migrations set up, RLS po
 
 ## Verification Notes
 
-- Backend TypeScript build passes with npm run build.
-- All migration files 001_ through 007_ exist in backend/migrations.
-- Migrator executes .sql files in numeric order and each file runs in its own transaction.
-- RLS policies are defined for users, roles, user_roles, refresh_tokens, and audit_log only.
+- Added `DROP POLICY IF EXISTS ...` before each of the five `CREATE POLICY` statements in `rls.sql`.
+- Updated `user_roles_tenant_isolation` policy to use `user_id IN (SELECT id FROM users WHERE tenant_id = current_setting('app.current_tenant_id')::uuid)` because `user_roles` has no `tenant_id` column.
 
 ---
 
 ## Next Task
 
-Step 2 — Database connection layer and RLS enforcement.
+Continue Step 2 — database connection layer and runtime RLS enforcement validation.
