@@ -10,3 +10,5 @@
 [2026-04-06] — Step 1: PostgreSQL schema and migrations. Created 001-007 migration files, migrator.ts, rls.sql. — backend/migrations/*, backend/src/db/migrator.ts, backend/src/db/rls.sql, backend/src/db/client.ts, backend/src/index.ts
 [2026-04-07] — Updated RLS policies to be idempotent and fixed user*roles tenant isolation predicate — backend/src/db/rls.sql, docs/SESSION_HANDOFF.md, docs/WORK_LOG.md
 [2026-04-08] — Step 1 complete: Added IF NOT EXISTS to migrations, fixed user_roles RLS policy. — backend/migrations/*, backend/src/db/rls.sql
+[2026-04-08] — Step 2: Database connection layer and RLS enforcement. Created client.ts with pool and withTenant(), setup.ts with parameterized password handling, setup-db-role.sql with GRANT/REVOKE statements. Integrated into startup sequence. — backend/src/db/client.ts, backend/src/db/setup.ts, backend/src/db/setup-db-role.sql, backend/src/index.ts, .env.example
+[2026-04-08] — Step 2 hardening: Moved SIGTERM listener outside app.listen() callback, added SQL path resolution comment. — backend/src/index.ts, backend/src/db/setup.ts

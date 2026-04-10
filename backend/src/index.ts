@@ -2,7 +2,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 
+import { pool } from "./db/client";
 import { applyRlsPolicies, runMigrations } from "./db/migrator";
+import { setupDatabaseRole } from "./db/setup";
 
 dotenv.config();
 
@@ -17,15 +19,31 @@ app.use(
 );
 
 async function start(): Promise<void> {
-  await runMigrations();
-  await applyRlsPolicies();
+  try {
+    console.log("[App] Starting Gatekeeper...");
 
-  app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-  });
+    await runMigrations();
+    console.log("[DB] Migrations complete");
+
+    await applyRlsPolicies();
+    console.log("[DB] RLS policies applied");
+
+    await setupDatabaseRole();
+    console.log("[DB] App database role setup complete");
+
+    app.listen(port, () => {
+      console.log(`[App] Server listening on port ${port}`);
+    });
+
+    process.on("SIGTERM", async () => {
+      console.log("[App] Received SIGTERM, shutting down gracefully...");
+      await pool.end();
+      process.exit(0);
+    });
+  } catch (error) {
+    console.error("[App] Failed to start:", error);
+    process.exit(1);
+  }
 }
 
-start().catch((error: unknown) => {
-  console.error("Failed to start server:", error);
-  process.exit(1);
-});
+void start();

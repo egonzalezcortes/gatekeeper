@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { Pool } from "pg";
 import type { PoolClient } from "pg";
 
@@ -8,13 +10,23 @@ if (!connectionString) {
 }
 
 // Export the pool for non-tenant queries (e.g., login by email).
-export const pool = new Pool({ connectionString });
+export const pool = new Pool({
+  connectionString,
+  max: Number.parseInt(process.env.DB_POOL_MAX ?? "10", 10),
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+
+pool.on("error", (err: Error) => {
+  console.error("[DB] Unexpected error on idle client:", err);
+  process.exit(1);
+});
 
 // Executes a function inside a transaction with tenant context set.
 // SET LOCAL app.current_tenant_id = $1 persists only for the transaction duration.
 // Tenant scope is enforced at the DB layer by RLS policies.
 // const user = await withTenant(tenantId, async (client) => {
-//   const result = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+//   const result = await client.query('SELECT id, email FROM users WHERE email = $1', [email]);
 //   return result.rows[0];
 // });
 export async function withTenant<T>(
@@ -32,7 +44,8 @@ export async function withTenant<T>(
     await client.query("COMMIT");
     return result;
   } catch (error) {
-    await client.query("ROLLBACK");
+    // Preserve the original query/application error if rollback itself fails.
+    await client.query("ROLLBACK").catch(() => {});
     throw error;
   } finally {
     client.release();
